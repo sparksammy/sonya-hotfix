@@ -1,0 +1,33 @@
+package rfc1436
+
+import "strings"
+
+type Datatype string
+
+const (
+	File            Datatype = "0"
+	Directory       Datatype = "1"
+	CSOPhoneBook    Datatype = "2"
+	Error           Datatype = "3"
+	BinHex          Datatype = "4"
+	DOSBinary       Datatype = "5" // doesn't get postamble
+	UUEncoded       Datatype = "6"
+	IndexSearch     Datatype = "7"
+	TextTelnet      Datatype = "8"
+	Binary          Datatype = "9" // doesn't get postamble
+	RedundantServer Datatype = "+"
+	TextTN3270      Datatype = "T"
+	GIF             Datatype = "g"
+	Image           Datatype = "I"
+)
+
+func HasPostamble(d Datatype) bool {
+	return !(d == DOSBinary || d == Binary)
+}
+
+func DotEscape(d Datatype, s string) string {
+	if HasPostamble(d) {
+		s = strings.Replace(s, "\n.\n", "\n..\n", -1)
+	}
+	return s
+}
