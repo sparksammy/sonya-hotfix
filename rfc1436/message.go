@@ -4,6 +4,7 @@ import "fmt"
 
 type Listing struct  {
 	Type Datatype
+	Name string
 	Location string
 	Addr Address
 }
@@ -14,5 +15,5 @@ type Address struct {
 }
 
 func (l Listing) String() string {
-	return fmt.Sprintf("%s\t%s\t%s\t%d", l.Type, l.Location, l.Addr.Hostname, l.Addr.Port)
+	return fmt.Sprintf("%s%s%s\t%s\t%d", l.Type, l.Name, l.Location, l.Addr.Hostname, l.Addr.Port)
 }

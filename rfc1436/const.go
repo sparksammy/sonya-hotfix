@@ -5,7 +5,7 @@ import "strings"
 type Datatype string
 
 const (
-	File            Datatype = "0"
+	Text            Datatype = "0"
 	Directory       Datatype = "1"
 	CSOPhoneBook    Datatype = "2"
 	Error           Datatype = "3"
