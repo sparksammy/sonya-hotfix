@@ -15,5 +15,5 @@ type Address struct {
 }
 
 func (l Listing) String() string {
-	return fmt.Sprintf("%s%s%s\t%s\t%d", l.Type, l.Name, l.Location, l.Addr.Hostname, l.Addr.Port)
+	return fmt.Sprintf("%s%s\t%s\t%s\t%d\n", l.Type, l.Name, l.Location, l.Addr.Hostname, l.Addr.Port)
 }
