@@ -45,7 +45,7 @@ func handleConnection(c net.Conn) {
 			listings = []rfc1436.Listing{rfc1436.NewError(err)}
 		}
 		for _, listing := range listings {
-			c.Write([]byte(listing.String()))
+			c.Write(listing.Bytes())
 		}
 		c.Write([]byte(".\r\n")) // listings hav a trailing \r\n built in
 		c.Close()
@@ -72,9 +72,9 @@ func handleConnection(c net.Conn) {
 				rfc1436.WriteError(err, c)
 			}
 			for _, listing := range listings {
-				c.Write([]byte(listing.String()))
+				c.Write(listing.Bytes())
 			}
-			c.Write([]byte("\r\n.\r\n"))
+			c.Write([]byte(rfc1436.EndSentinel))
 			c.Close()
 		} else {
 			s, err := rstrings.FileToString(request)

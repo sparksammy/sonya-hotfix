@@ -19,6 +19,7 @@ const (
 	TextTN3270      Datatype = "T"
 	GIF             Datatype = "g"
 	Image           Datatype = "I"
+	EndSentinel     string   = "\r\n.\r\n"
 )
 
 func HasPostamble(d Datatype) bool {
@@ -27,14 +28,14 @@ func HasPostamble(d Datatype) bool {
 
 func DotEscape(d Datatype, s string) string {
 	if HasPostamble(d) {
-		s = strings.Replace(s, "\n.\n", "\n..\n", -1)
+		s = strings.Replace(s, EndSentinel, "\r\n..\r\n", -1)
 	}
 	return s
 }
 
 func Postamble(d Datatype, s string) string {
 	if HasPostamble(d) {
-		s += "\r\n.\r\n"
+		s += EndSentinel
 	}
 	return s
 }

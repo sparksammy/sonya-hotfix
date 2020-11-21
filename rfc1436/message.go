@@ -17,8 +17,8 @@ type Address struct {
 	Port int
 }
 
-func (l Listing) String() string {
-	return fmt.Sprintf("%s%s\t%s\t%s\t%d\n", l.Type, l.Name, l.Location, l.Addr.Hostname, l.Addr.Port)
+func (l Listing) Bytes() []byte {
+	return []byte(fmt.Sprintf("%s%s\t%s\t%s\t%d\n", l.Type, l.Name, l.Location, l.Addr.Hostname, l.Addr.Port))
 }
 
 func NewError(err error) Listing {
@@ -29,7 +29,7 @@ func NewError(err error) Listing {
 }
 
 func WriteError(err error, c net.Conn) {
-	c.Write([]byte(NewError(err).String()))
-	c.Write([]byte("\r\n.\r\n"))
+	c.Write(NewError(err).Bytes())
+	c.Write([]byte(EndSentinel))
 	c.Close()
 }
