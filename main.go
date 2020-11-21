@@ -30,14 +30,12 @@ func main() {
 
 func handleConnection(c net.Conn) {
 
-	c.SetReadDeadline(time.Now().Add(10 * time.Second))
+	c.SetReadDeadline(time.Now().Add(20 * time.Second))
 	br := bufio.NewReader(c)
 
 	bytes, err := br.ReadBytes('\n')
 	if err != nil {
-		c.Write([]byte(rfc1436.NewError(err).String()))
-		c.Write([]byte("\r\n.\r\n"))
-		c.Close()
+		rfc1436.WriteError(err, c)
 	}
 	fmt.Printf("read bytes '%v'\n", bytes)
 	if len(bytes) == 2 && bytes[0] == '\r' && bytes[1] == '\n' {
@@ -49,35 +47,29 @@ func handleConnection(c net.Conn) {
 		for _, listing := range listings {
 			c.Write([]byte(listing.String()))
 		}
-		c.Write([]byte("\r\n.\r\n"))
+		c.Write([]byte(".\r\n")) // listings hav a trailing \r\n built in
 		c.Close()
 	} else {
 		request := strings.TrimSuffix(string(bytes), "\r\n")
 		sub, err := isSubDir("./serve", request)
 		if err != nil {
-			c.Write([]byte(rfc1436.NewError(err).String()))
-			c.Write([]byte("\r\n.\r\n"))
-			c.Close()
+			rfc1436.WriteError(err, c)
+			return
 		}
 		if !sub {
-			c.Write([]byte(rfc1436.NewError(fmt.Errorf("attempted to read from outside serve directory! '%s'\n", request)).String()))
-			c.Write([]byte("\r\n.\r\n"))
-			c.Close()
+			rfc1436.WriteError(fmt.Errorf("attempted to read from outside serve directory! '%s'\n", request), c)
 			return
 		}
 		stat, err := os.Stat(request)
 		if err != nil {
-			c.Write([]byte(rfc1436.NewError(err).String()))
-			c.Write([]byte("\r\n.\r\n"))
-			c.Close()
+			rfc1436.WriteError(err, c)
+			return
 		}
 		if stat.IsDir() {
 			// TODO: this is duplicated
 			listings, err := genListing(request)
 			if err != nil {
-				c.Write([]byte(rfc1436.NewError(err).String()))
-				c.Write([]byte("\r\n.\r\n"))
-				c.Close()
+				rfc1436.WriteError(err, c)
 			}
 			for _, listing := range listings {
 				c.Write([]byte(listing.String()))
@@ -88,9 +80,7 @@ func handleConnection(c net.Conn) {
 			s, err := rstrings.FileToString(request)
 			if err != nil {
 				//TODO: this is probably not legal
-				c.Write([]byte(rfc1436.NewError(err).String()))
-				c.Write([]byte("\r\n.\r\n"))
-				c.Close()
+				rfc1436.WriteError(err, c)
 			}
 			c.Write([]byte(s))
 			c.Close()
@@ -119,7 +109,7 @@ func genListing(basePath string) ([]rfc1436.Listing, error) {
 			})
 		} else {
 			listings = append(listings, rfc1436.Listing{
-				Type:     rfc1436.Binary, // TODO: everything is a binary file. correctly recognize types
+				Type:     rfc1436.Binary, // TODO: everything is treated as a binary file. correctly recognize types
 				Name:     file.Name(),
 				Location: filepath.Join(basePath, file.Name()),
 				Addr:     rfc1436.Address{

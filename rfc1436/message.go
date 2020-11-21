@@ -1,6 +1,9 @@
 package rfc1436
 
-import "fmt"
+import (
+	"fmt"
+	"net"
+)
 
 type Listing struct  {
 	Type Datatype
@@ -23,4 +26,10 @@ func NewError(err error) Listing {
 		Type: Error,
 		Name: err.Error(),
 	}
+}
+
+func WriteError(err error, c net.Conn) {
+	c.Write([]byte(NewError(err).String()))
+	c.Write([]byte("\r\n.\r\n"))
+	c.Close()
 }

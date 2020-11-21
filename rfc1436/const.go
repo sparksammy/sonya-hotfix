@@ -31,3 +31,10 @@ func DotEscape(d Datatype, s string) string {
 	}
 	return s
 }
+
+func Postamble(d Datatype, s string) string {
+	if HasPostamble(d) {
+		s += "\r\n.\r\n"
+	}
+	return s
+}
