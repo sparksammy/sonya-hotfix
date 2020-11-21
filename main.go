@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	ln, err := net.Listen("tcp", ":7000")
+	ln, err := net.Listen("tcp", ":70")
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +104,7 @@ func genListing(basePath string) ([]rfc1436.Listing, error) {
 				Location: filepath.Join(basePath, file.Name()),
 				Addr:     rfc1436.Address{
 					Hostname: "127.0.0.1",
-					Port: 7000,
+					Port: 70,
 				},
 			})
 		} else {
@@ -114,7 +114,7 @@ func genListing(basePath string) ([]rfc1436.Listing, error) {
 				Location: filepath.Join(basePath, file.Name()),
 				Addr:     rfc1436.Address{
 					Hostname: "127.0.0.1",
-					Port: 7000,
+					Port: 70,
 				},
 			})
 		}
