@@ -35,14 +35,16 @@ func handleConnection(c net.Conn) {
 
 	bytes, err := br.ReadBytes('\n')
 	if err != nil {
-		panic(err)
+		c.Write([]byte(rfc1436.NewError(err).String()))
+		c.Write([]byte("\r\n.\r\n"))
+		c.Close()
 	}
 	fmt.Printf("read bytes '%v'\n", bytes)
 	if len(bytes) == 2 && bytes[0] == '\r' && bytes[1] == '\n' {
 		// list contents
 		listings, err := genListing("./serve")
 		if err != nil {
-			panic(err)
+			listings = []rfc1436.Listing{rfc1436.NewError(err)}
 		}
 		for _, listing := range listings {
 			c.Write([]byte(listing.String()))
@@ -53,22 +55,29 @@ func handleConnection(c net.Conn) {
 		request := strings.TrimSuffix(string(bytes), "\r\n")
 		sub, err := isSubDir("./serve", request)
 		if err != nil {
-			panic(err)
+			c.Write([]byte(rfc1436.NewError(err).String()))
+			c.Write([]byte("\r\n.\r\n"))
+			c.Close()
 		}
 		if !sub {
-			fmt.Printf("attempted to read from outside serve directory! '%s'\n", request)
+			c.Write([]byte(rfc1436.NewError(fmt.Errorf("attempted to read from outside serve directory! '%s'\n", request)).String()))
+			c.Write([]byte("\r\n.\r\n"))
 			c.Close()
 			return
 		}
 		stat, err := os.Stat(request)
 		if err != nil {
-			panic(err)
+			c.Write([]byte(rfc1436.NewError(err).String()))
+			c.Write([]byte("\r\n.\r\n"))
+			c.Close()
 		}
 		if stat.IsDir() {
 			// TODO: this is duplicated
 			listings, err := genListing(request)
 			if err != nil {
-				panic(err)
+				c.Write([]byte(rfc1436.NewError(err).String()))
+				c.Write([]byte("\r\n.\r\n"))
+				c.Close()
 			}
 			for _, listing := range listings {
 				c.Write([]byte(listing.String()))
@@ -78,10 +87,12 @@ func handleConnection(c net.Conn) {
 		} else {
 			s, err := rstrings.FileToString(request)
 			if err != nil {
-				panic(err)
+				//TODO: this is probably not legal
+				c.Write([]byte(rfc1436.NewError(err).String()))
+				c.Write([]byte("\r\n.\r\n"))
+				c.Close()
 			}
 			c.Write([]byte(s))
-			c.Write([]byte("\r\n.\r\n"))
 			c.Close()
 		}
 	}
