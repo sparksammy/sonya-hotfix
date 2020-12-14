@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/raidancampbell/libraidan/pkg/rstrings"
-	"github.com/raidancampbell/sonya/rfc1436"
+	"libraidan/pkg/rstrings"
+	"rfc1436"
 	"io/ioutil"
 	"net"
 	"os"
